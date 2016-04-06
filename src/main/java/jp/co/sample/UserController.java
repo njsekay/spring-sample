@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import jp.co.dao.UserDao;
-import jp.co.entity.User;
+import jp.co.dao.UserMasterDao;
+import jp.co.entity.UserMaster;
 import jp.co.model.IndexForm;
 
 /**
@@ -22,7 +22,7 @@ import jp.co.model.IndexForm;
  */
 @Controller
 @EnableAutoConfiguration
-public class HelloController {
+public class UserController {
 	// @RequestMapping(value = "/", method = RequestMethod.GET)
 	// public String home(@RequestParam(value="name", defaultValue="World")
 	// String name, Model model) {
@@ -30,11 +30,9 @@ public class HelloController {
 	// return "home/index";
 	// }
 
-
-
 	/** 在庫情報用Dao */
 	@Autowired
-	private UserDao userDao;
+	private UserMasterDao userDao;
 
 	/**
 	 * 一覧画面
@@ -42,12 +40,12 @@ public class HelloController {
 	 * @param model
 	 * @return
 	 */
-	@RequestMapping(value = { "/", "/index" })
+	@RequestMapping(value = { "/", "/users" })
 	public String index(Model model) {
 
-		List<User> data = userDao.selectAll();
+		List<UserMaster> users = userDao.selectAll();
 
-		model.addAttribute("images", data);
+		model.addAttribute("users", users);
 		return "home/index";
 	}
 
@@ -57,10 +55,10 @@ public class HelloController {
 	 * @param model
 	 * @return
 	 */
-	@RequestMapping(value = "/create")
-	public String create(Model model) {
+	@RequestMapping(value = "/new")
+	public String newUser(Model model) {
 		model.addAttribute("indexForm", new IndexForm());
-		return "home/create";
+		return "home/new";
 	}
 
 	/**
@@ -70,12 +68,18 @@ public class HelloController {
 	 * @param model
 	 * @return
 	 */
-	@RequestMapping(value = "/result", method = RequestMethod.POST)
-	public String indexFormSubmit(@ModelAttribute IndexForm indexForm, Model model) {
-		if (indexForm.getId() == 1) {
-			indexForm.setContent("お前がナンバーワンだ！");
-		}
-		model.addAttribute("indexForm", indexForm);
-		return "home/result";
+	@RequestMapping(value = "/create", method = RequestMethod.POST)
+	public String create(@ModelAttribute IndexForm indexForm, Model model) {
+		// 登録処理
+		UserMaster user = new UserMaster();
+
+		user.setName(indexForm.getName());
+		user.setEmail(indexForm.getEmail());
+		user.setPassword(indexForm.getPassword());
+		user.setRemarks(indexForm.getRemarks());
+
+		userDao.insert(user);
+
+		return "redirect:/users";
 	}
 }

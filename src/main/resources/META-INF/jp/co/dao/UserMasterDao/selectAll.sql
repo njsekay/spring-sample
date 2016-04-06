@@ -1,5 +1,5 @@
 select
     /*%expand*/*
 from
-    "user"
+    user_master
 order by id

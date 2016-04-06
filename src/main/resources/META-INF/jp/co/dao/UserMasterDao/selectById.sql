@@ -1,6 +1,6 @@
 select
   /*%expand*/*
 from
-  "user"
+  user_master
 where
   id = /* id */1
